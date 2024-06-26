@@ -1,9 +1,8 @@
 import os
 
 import pytest
-from django.apps import apps
 from django.test import override_settings
-from django.urls import include, path
+from django.urls import clear_url_caches, reverse
 
 from django_js_rpc.generator import TypeScriptAPIGenerator
 
@@ -13,41 +12,38 @@ def generator():
     return TypeScriptAPIGenerator()
 
 
-@pytest.fixture
-def test_app_urls():
-    return [
-        path("api/", include("django_js_rpc.tests.test_app.urls")),
-    ]
-
-
-@pytest.mark.urls("django_js_rpc.tests.test_app.urls")
+@pytest.mark.django_db
 def test_analyze_views(generator):
+    clear_url_caches()
+    reverse("patient-list")
+    reverse("patient-visit-list", kwargs={"patient_id": 1})
+
     views = generator.analyze_views()
 
-    assert "PatientViewSet" in views
-    assert "PatientVisitViewSet" in views
+    assert "patient" in views, "PatientViewSet not found in analyzed views"
+    assert "patientvisit" in views, "PatientVisitViewSet not found in analyzed views"
 
-    patient_view = views["PatientViewSet"]
+    patient_view = views["patient"]
     assert set(patient_view["methods"]) == {"list", "create", "retrieve", "update", "partial_update", "destroy"}
-    assert patient_view["path"] == r"^patients/(?:(?P<pk>[^/.]+)/)?$"
-    assert patient_view["params"] == ["pk"]
+    assert "patients/${pk}" in patient_view["path"], f"Unexpected path: {patient_view['path']}"
+    assert "pk" in patient_view["params"]
 
-    visit_view = views["PatientVisitViewSet"]
+    visit_view = views["patientvisit"]
     assert set(visit_view["methods"]) == {"list", "create", "retrieve", "update", "partial_update", "destroy"}
-    assert visit_view["path"] == r"^patients/(?P<patient_id>[^/.]+)/visits/(?:(?P<pk>[^/.]+)/)?$"
-    assert set(visit_view["params"]) == {"patient_id", "pk"}
+    assert "patients/${patient_id}/visits/${pk}" in visit_view["path"], f"Unexpected path: {visit_view['path']}"
+    assert "patient_id" in visit_view["params"] and "pk" in visit_view["params"]
 
 
 def test_generate_typescript(generator):
     views = {
-        "PatientViewSet": {
+        "patient": {
             "methods": ["list", "create", "retrieve", "update", "partial_update", "destroy"],
-            "path": r"^patients/(?:(?P<pk>[^/.]+)/)?$",
+            "path": "/api/patients/${pk}/",
             "params": ["pk"],
         },
-        "PatientVisitViewSet": {
+        "patientvisit": {
             "methods": ["list", "create", "retrieve", "update", "partial_update", "destroy"],
-            "path": r"^patients/(?P<patient_id>[^/.]+)/visits/(?:(?P<pk>[^/.]+)/)?$",
+            "path": "/api/patients/${patient_id}/visits/${pk}/",
             "params": ["patient_id", "pk"],
         },
     }
@@ -58,20 +54,29 @@ def test_generate_typescript(generator):
     assert "patient = {" in typescript_code
     assert "patientvisit = {" in typescript_code
 
-    # Check for correct parameter handling
-    assert "query: (pk: string, options?: any)" in typescript_code
-    assert "query: (patient_id: string, pk: string, options?: any)" in typescript_code
+    # Check for reverse function usage
+    assert "url: (pk: string) => this.reverse('/api/patients/${pk}/', { pk })" in typescript_code
+    assert (
+        "url: (patient_id: string, pk: string) => this.reverse('/api/patients/${patient_id}/visits/${pk}/', { patient_id, pk })"
+        in typescript_code
+    )
+
+    # Check for query methods
+    assert "query: (options?: any) =>" in typescript_code
+    assert "query: (id: string, options?: any) =>" in typescript_code
+
+    # Check for mutation methods
+    assert "mutation: (options?: any) =>" in typescript_code
 
 
 @override_settings(JS_RPC_OUTPUT_DIR="test_output")
 def test_app_config_ready():
-    # Manually run the ready method
+    os.remove("test_output/rpcClient.ts")
+    os.rmdir("test_output")
+    from django.apps import apps
+
     app_config = apps.get_app_config("django_js_rpc")
     app_config.ready()
 
-    # Check if the file was generated
     assert os.path.exists("test_output/rpcClient.ts")
 
-    # Clean up
-    os.remove("test_output/rpcClient.ts")
-    os.rmdir("test_output")

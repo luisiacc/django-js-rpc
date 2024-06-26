@@ -68,4 +68,4 @@ STATIC_URL = "/static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-TS_API_OUTPUT_DIR = "test_output"
+JS_RPC_OUTPUT_DIR = "test_output"
