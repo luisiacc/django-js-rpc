@@ -1,0 +1,34 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+DjangoTsApiGeneratorConfig	django-js-rpc/apps.py	/^class DjangoTsApiGeneratorConfig(AppConfig):$/;"	c
+TypeScriptAPIGenerator	django-js-rpc/generator.py	/^class TypeScriptAPIGenerator:$/;"	c
+__init__	django-js-rpc/generator.py	/^    def __init__(self):$/;"	f
+analyze_views	django-js-rpc/generator.py	/^    def analyze_views(self):$/;"	f
+default_auto_field	django-js-rpc/apps.py	/^    default_auto_field = "django.db.models.BigAutoField"$/;"	v
+entry_points	setup.py	/^    entry_points={$/;"	v
+extract_url_params	django-js-rpc/generator.py	/^    def extract_url_params(self, path):$/;"	f
+generate_typescript	django-js-rpc/generator.py	/^    def generate_typescript(self, views):$/;"	f
+generator	django-js-rpc/generator.py	/^generator = TypeScriptAPIGenerator()$/;"	v
+get_view_methods	django-js-rpc/generator.py	/^    def get_view_methods(self, view):$/;"	f
+get_view_name	django-js-rpc/generator.py	/^    def get_view_name(self, view):$/;"	f
+include_package_data	setup.py	/^    include_package_data=True,$/;"	v
+install_requires	setup.py	/^    install_requires=[$/;"	v
+name	django-js-rpc/apps.py	/^    name = "django_ts_api_generator"$/;"	v
+name	setup.py	/^    name="django-js-rpc",$/;"	v
+output_dir	django-js-rpc/apps.py	/^        output_dir = getattr(settings, "TS_API_OUTPUT_DIR", "")$/;"	v
+output_file	django-js-rpc/apps.py	/^        output_file = os.path.join(output_dir, "rpcClient.ts")$/;"	v
+packages	setup.py	/^    packages=find_packages(),$/;"	v
+param_pattern	django-js-rpc/generator.py	/^        param_pattern = r'\\(\\?P<(\\w+)>[^)]+\\)'$/;"	v
+params	django-js-rpc/generator.py	/^        params = re.findall(param_pattern, path)$/;"	v
+ready	django-js-rpc/apps.py	/^    def ready(self):$/;"	f
+resolver	django-js-rpc/generator.py	/^        resolver = get_resolver()$/;"	v
+ts_path	django-js-rpc/generator.py	/^        ts_path = re.sub(param_pattern, r'${{\\1}}', path)$/;"	v
+typescript_code	django-js-rpc/apps.py	/^        typescript_code = generator.generate_typescript(views)$/;"	v
+version	setup.py	/^    version="0.1",$/;"	v
+view_name	django-js-rpc/generator.py	/^                view_name = self.get_view_name(pattern.callback)$/;"	v
+views	django-js-rpc/apps.py	/^        views = generator.analyze_views()$/;"	v
+views	django-js-rpc/generator.py	/^        views = {}$/;"	v
