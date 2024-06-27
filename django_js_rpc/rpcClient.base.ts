@@ -18,7 +18,7 @@ class RpcClient {
     this.baseUrl = baseUrl;
   }
 
-  private async request(method: string, path: string, data?: any) {
+  private async request<T>(method: string, path: string, data?: T) {
     const url = `${this.baseUrl}${path}`;
     const options: RequestInit = {
       method,
